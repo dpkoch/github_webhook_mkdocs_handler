@@ -1,0 +1,10 @@
+webhook_path: /webhook/docs
+# secret_token: abcdefgh
+# secret_token_env: GITHUB_WEBHOOK_TOKEN
+verify_github_ip: false
+repositories:
+  rosflight/firmware:
+    master: /tmp/docs/master
+    doctest: /tmp/docs/doctest
+  rosflight/rosflight:
+    master: /tmp/meh

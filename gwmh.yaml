@@ -1,0 +1,13 @@
+uwsgi:
+  strict: true
+
+  socket: /home/dpkoch/git/github_webhook_mkdocs_handler/gwmh.sock
+  chmod-socket: 666
+
+  plugin-dir: /usr/lib/uwsgi/plugins
+  plugin: python36
+  module: gwmh
+  callable: app
+
+  master: true
+  workers: 1
