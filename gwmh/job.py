@@ -31,6 +31,13 @@ def mkdocs_job(repository, branch, output_path):
         print("[ERROR] Failed to build mkdocs site. Aborting.")
         return False
 
+    if os.listdir(output_path):
+        print("[ INFO] Deleting contents of output directory {}".format(output_path))
+        result = subprocess.run('rm -r {}/*'.format(output_path), shell=True)
+        if not result.returncode == 0:
+            print("[ERROR] Failed to delete contents of output directory {}".format(output_path))
+            return False
+
     print("[ INFO] Copying mkdocs site to output directory {}".format(output_path))
     result = subprocess.run('cp -r * {}'.format(output_path),
                             cwd='{}/site'.format(tmpdir), shell=True)

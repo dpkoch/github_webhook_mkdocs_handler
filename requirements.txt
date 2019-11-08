@@ -4,3 +4,5 @@ rq
 redis
 requests
 pyyaml
+mkdocs
+mkdocs-material

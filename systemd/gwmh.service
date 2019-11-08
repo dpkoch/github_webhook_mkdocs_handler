@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve GitHub webhook mkdocs handler
+After=network.target
+
+[Service]
+User=gwmh
+Group=www-data
+WorkingDirectory=/home/gwmh/gwmh
+Environment=PATH=/home/gwmh/gwmh/venv/bin
+ExecStart=/home/gwmh/gwmh/venv/bin/uwsgi --yaml gwmh.yaml
+
+[Install]
+WantedBy=multi-user.target

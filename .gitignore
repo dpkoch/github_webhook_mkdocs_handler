@@ -1,3 +1,14 @@
+*~
+*.swp
+*.bak
+
 /venv/
 *.pyc
 __pycache__/
+
+*.sock
+/logs/
+
+/site/
+
+/config.yaml

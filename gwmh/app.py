@@ -1,16 +1,16 @@
 # /usr/bin/env python3
 
+import os
+
 import ipaddress
 import json
 import requests
 import yaml
 
-import os
-
 import hashlib
 import hmac
 
-from flask import Flask, request, abort, Response, jsonify
+from flask import Flask, request, abort, Response
 
 import redis
 import rq
@@ -45,6 +45,9 @@ def parse_config(path):
 config = parse_config('config.yaml')
 app = Flask(__name__)
 
+redis_conn = redis.Redis(unix_socket_path='/var/run/redis/redis-server.sock')
+rq_queue = rq.Queue(connection=redis_conn)
+
 
 @app.route(config['webhook_path'], methods=['GET', 'POST'])
 def index():
@@ -67,15 +70,15 @@ def index():
                            status=HTTP_STATUS_BAD_REQUEST, content_type="text/plain"))
 
         if not is_push_event():
-            abort(Response("Payload was not a push event; aborting.".encode('utf-8'),
+            abort(Response("Payload was not a push event. Aborting.".encode('utf-8'),
                            status=HTTP_STATUS_ACCEPTED, content_type="text/plain"))
 
         if not is_target_repo():
-            abort(Response("Payload was not for the target repository; aborting.".encode('utf-8'),
+            abort(Response("Payload was not for the target repository. Aborting.".encode('utf-8'),
                            status=HTTP_STATUS_ACCEPTED, content_type="text/plain"))
 
         if not is_target_branch():
-            abort(Response("Payload was not for a target branch; aborting.".encode('utf-8'),
+            abort(Response("Payload was not for a target branch. Aborting.".encode('utf-8'),
                            status=HTTP_STATUS_ACCEPTED, content_type="text/plain"))
 
         queue_mkdocs_job()
@@ -139,6 +142,4 @@ def is_target_branch():
 
 
 def queue_mkdocs_job():
-    redis_conn = redis.Redis()
-    q = rq.Queue(connection=redis_conn)
-    q.enqueue(mkdocs_job, get_repository(), get_branch(), get_output_path())
+    rq_queue.enqueue(mkdocs_job, get_repository(), get_branch(), get_output_path())

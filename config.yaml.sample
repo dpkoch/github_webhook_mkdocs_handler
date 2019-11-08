@@ -1,0 +1,34 @@
+## The URL path on which to listen. The "Payload URL" you set in the GitHub
+## webhook settings should be https://yourdomain.com<webhook_path>. To use
+## the root URL, set this to /
+webhook_path: /webhook/docs
+
+## There are two ways to set the secret token. The first is to create an
+## environment variable containing the token, then set "secret_token_env" to the
+## name of that variable. The second is to set "secret_token" to the value of
+## the token. If both are set, "secret_token" takes precedence. If neither is
+## set, the secret token will not be verified.
+secret_token_env: GITHUB_WEBHOOK_TOKEN
+# secret_token: PASTE_SECRET_TOKEN_HERE
+
+## If this is true, the handler will verify that the request is coming from a
+## valid GitHub URL. The handler retrieves the list of valid URLs from
+## https://api.github.com/meta
+verify_github_ip: true
+
+# This configures the repositories and branches for which the handler should
+# build documentation, as well as the paths where the built site should be put.
+# You can include any number of repositories or branches for each repository by
+# extending the pattern below
+#
+# repositories:
+#   myorganization/repo1:
+#     master: /var/www/mysite1/latest
+#     v1.0: /var/www/mysite1/v1.0
+#   myorganization/repo2:
+#     master: /var/www/mysite2
+#
+# Repository names are in the format <GitHub user/organization>/<repo>
+repositories:
+  dpkoch/gwmh:
+    master: /var/www/gwmh
