@@ -1,0 +1,6 @@
+uwsgi
+flask
+rq
+redis
+requests
+pyyaml

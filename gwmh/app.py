@@ -12,6 +12,10 @@ import hmac
 
 from flask import Flask, request, abort, Response, jsonify
 
+import redis
+import rq
+from gwmh.job import mkdocs_job
+
 HTTP_STATUS_OK = 200
 HTTP_STATUS_ACCEPTED = 202
 HTTP_STATUS_NO_CONTENT = 204
@@ -21,7 +25,7 @@ HTTP_STATUS_FORBIDDEN = 403
 
 def parse_config(path):
     with open(path) as f:
-        config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.SafeLoader)
 
     if not 'webhook_path' in config.keys():
         config['webhook_path'] = '/'
@@ -135,5 +139,6 @@ def is_target_branch():
 
 
 def queue_mkdocs_job():
-    # TODO implement
-    pass
+    redis_conn = redis.Redis()
+    q = rq.Queue(connection=redis_conn)
+    q.enqueue(mkdocs_job, get_repository(), get_branch(), get_output_path())
