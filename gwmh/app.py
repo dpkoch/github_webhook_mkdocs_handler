@@ -142,4 +142,5 @@ def is_target_branch():
 
 
 def queue_mkdocs_job():
-    rq_queue.enqueue(mkdocs_job, get_repository(), get_branch(), get_output_path())
+    rq_queue.enqueue(mkdocs_job,
+                     get_repository(), get_branch(), get_output_path())
