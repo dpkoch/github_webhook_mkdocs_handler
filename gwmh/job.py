@@ -13,9 +13,7 @@ def mkdocs_job(repository, branch, output_path):
     logging.info("Starting MkDocs build job")
 
     stdoutfile = open('logs/mkdocs_job_std.log', 'w')
-    stdoutfile.write('='*80 + '\n')
-    stdoutfile.write('Starting MkDocs build job, {}\n'.format(datetime.datetime.now()))
-    stdoutfile.write('='*80 + '\n')
+    stdoutfile.write('[{}]: Starting MkDocs build job\n'.format(datetime.datetime.now()))
     stdoutfile.flush()
 
     repo_name = repository.split("/")[-1]
@@ -59,9 +57,7 @@ def mkdocs_job(repository, branch, output_path):
     logging.info("Deleting temporary working directory %s", tmpdir)
     subprocess.run(['rm', '-rf', tmpdir], stdout=stdoutfile, stderr=subprocess.STDOUT)
 
-    stdoutfile.write('='*80 + '\n')
-    stdoutfile.write('Job Successful\n')
-    stdoutfile.write('='*80 + '\n')
+    stdoutfile.write('[{}]: Job successful\n'.format(datetime.datetime.now()))
     stdoutfile.close()
 
     logging.info("Mkdocs build job completed succesfully!")
