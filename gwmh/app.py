@@ -98,13 +98,12 @@ def get_output_path():
 def verify_github_remote_addr():
     github_ips = requests.get('https://api.github.com/meta').json()['hooks']
     for ip in github_ips:
-        if ipaddress.ip_address(request.remote_addr.encode('utf-8')) in ipaddress.ip_network(ip.encode('utf-8')):
+        if ipaddress.ip_address(request.remote_addr) in ipaddress.ip_network(ip):
             return True
     return False
 
 
 def verify_github_secret_token():
-
     if not config['secret_token'] is None:
         token = config['secret_token']
     else:
