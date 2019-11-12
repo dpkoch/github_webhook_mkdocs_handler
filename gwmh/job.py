@@ -7,13 +7,13 @@ import logging
 
 
 def mkdocs_job(repository, branch, output_path):
-    logging.basicConfig(filename='logs/mkdocs_job.log',
+    logging.basicConfig(filename='log/mkdocs_job.log',
                         format='[%(levelname)s] [%(asctime)s]: %(message)s',
                         level=logging.DEBUG)
 
     logging.info("Starting MkDocs build job")
 
-    stdoutfile = open('logs/mkdocs_job_std.log', 'w')
+    stdoutfile = open('log/mkdocs_job_std.log', 'w')
     stdoutfile.write('[{}]: Starting MkDocs build job\n'.format(
         datetime.datetime.now()))
     stdoutfile.flush()

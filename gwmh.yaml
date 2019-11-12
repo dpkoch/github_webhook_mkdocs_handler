@@ -2,7 +2,7 @@ uwsgi:
   strict: true
 
   module: wsgi:app
-  logto: logs/uwsgi.log
+  logto: log/uwsgi.log
 
   socket: gwmh.sock
   chmod-socket: 660
