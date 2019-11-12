@@ -39,7 +39,7 @@ def parse_config(path):
     return config
 
 
-config = parse_config('config.yaml')
+config = parse_config('config.yml')
 app = Flask(__name__)
 
 redis_conn = redis.Redis(unix_socket_path='/var/run/redis/redis-server.sock')
