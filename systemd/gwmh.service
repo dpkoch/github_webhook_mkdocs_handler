@@ -7,7 +7,7 @@ User=gwmh
 Group=www-data
 WorkingDirectory=/home/gwmh/gwmh
 Environment=PATH=/home/gwmh/gwmh/venv/bin
-ExecStart=/home/gwmh/gwmh/venv/bin/uwsgi --yaml gwmh.yaml
+ExecStart=/home/gwmh/gwmh/venv/bin/uwsgi --yaml gwmh.yml
 
 [Install]
 WantedBy=multi-user.target
