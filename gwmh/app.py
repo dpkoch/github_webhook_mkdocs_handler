@@ -114,12 +114,10 @@ def verify_github_secret_token():
         return False
     received = request.headers['X-Hub-Signature']
 
-    h = hashlib.new('sha1')
-    h.update(token)
-    h.update(request.data)
-    expected = 'sha1=' + h.hexdigest()
+    expected = 'sha1=' + hmac.new(key=token.encode('utf-8'),
+                                  msg=request.data, digestmod=hashlib.sha1).hexdigest()
 
-    return hmac.compare_digest(received.encode('utf-8'), expected)
+    return hmac.compare_digest(received.encode('utf-8'), expected.encode('utf-8'))
 
 
 def is_push_event():
