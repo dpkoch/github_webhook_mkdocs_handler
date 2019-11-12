@@ -30,9 +30,6 @@ def parse_config(path):
     if not 'webhook_path' in config.keys():
         config['webhook_path'] = '/'
 
-    if not 'secret_token_env' in config.keys():
-        config['secret_token_env'] = None
-
     if not 'secret_token' in config.keys():
         config['secret_token'] = None
 
@@ -60,7 +57,7 @@ def index():
                 abort(Response("Request originated from invalid IP address".encode('utf-8'),
                                status=HTTP_STATUS_FORBIDDEN, content_type="text/plain"))
 
-        if not (config['secret_token'] is None and config['secret_token_env'] is None):
+        if not config['secret_token'] is None:
             if not verify_github_secret_token():
                 abort(Response("Invalid secret token".encode('utf-8'),
                                status=HTTP_STATUS_FORBIDDEN, content_type="text/plain"))
@@ -111,7 +108,7 @@ def verify_github_secret_token():
     if not config['secret_token'] is None:
         token = config['secret_token']
     else:
-        token = os.environ[config['secret_token_env']]
+        return False
 
     if not request.headers.has_key('X-Hub-Signature'):
         return False
