@@ -44,7 +44,7 @@ def mkdocs_job(repository, branch, output_path):
         ['mkdocs', 'build', '-d', '../site'], cwd='{}/{}'.format(tmpdir, repo_name), stdout=stdoutfile, stderr=subprocess.STDOUT)
     if not result.returncode == 0:
         logging.error("Failed to build mkdocs site. Aborting.")
-        return Falses
+        return False
 
     if os.listdir(output_path):
         logging.info("Deleting contents of output directory %s", output_path)
