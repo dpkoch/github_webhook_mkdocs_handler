@@ -14,6 +14,15 @@ webhook_path: /webhook/docs
 ## https://api.github.com/meta
 verify_github_ip: true
 
+## Set the type of the build that should be run to prepare the documentation.
+## Options are:
+##  - mkdocs: (default) Run `mkdocs build` and copy the result to the output
+##            directory.
+##  - copy: Copy the repository directly to the output directory. Useful for
+##          listening to changes on a branch to which another tool pushes
+##          documentation builds.
+build_type: mkdocs
+
 ## This configures the repositories and branches for which the handler should
 ## build documentation, as well as the paths where the built site should be put.
 ## You can include any number of repositories or branches for each repository by

@@ -1,21 +1,27 @@
 import os
 import tempfile
+from typing import Callable
 import subprocess
 
 import datetime
 import logging
 
 
-def mkdocs_job(repository, branch, output_path):
-    logging.basicConfig(filename='log/mkdocs_job.log',
+def _run_job(
+    repository: str,
+    branch: str,
+    output_path: str,
+    job_name: str,
+    build_fn: Callable,
+) -> bool:
+    logging.basicConfig(filename=os.path.join("log", f"{job_name}_job.log"),
                         format='[%(levelname)s] [%(asctime)s]: %(message)s',
                         level=logging.DEBUG)
 
-    logging.info("Starting MkDocs build job")
+    logging.info(f"Starting {job_name} job")
 
-    stdoutfile = open('log/mkdocs_job_std.log', 'w')
-    stdoutfile.write('[{}]: Starting MkDocs build job\n'.format(
-        datetime.datetime.now()))
+    stdoutfile = open(os.path.join("log", f"{job_name}_job_std.log"), 'w')
+    stdoutfile.write(f'[{datetime.datetime.now()}]: Starting {job_name} job\n')
     stdoutfile.flush()
 
     repo_name = repository.split("/")[-1]
@@ -39,11 +45,10 @@ def mkdocs_job(repository, branch, output_path):
             "Failed to clone repository %s, %s branch. Aborting.", repository, branch)
         return False
 
-    logging.info("Building mkdocs site")
-    result = subprocess.run(
-        ['mkdocs', 'build', '-d', '../site'], cwd='{}/{}'.format(tmpdir, repo_name), stdout=stdoutfile, stderr=subprocess.STDOUT)
-    if not result.returncode == 0:
-        logging.error("Failed to build mkdocs site. Aborting.")
+    success, site_directory = build_fn(
+        tmpdir=tmpdir, repo_name=repo_name, branch=branch, stdoutfile=stdoutfile)
+    if not success:
+        logging.error(f"Build step '{str(build_fn)}' failed. Aborting.")
         return False
 
     if os.listdir(output_path):
@@ -55,12 +60,12 @@ def mkdocs_job(repository, branch, output_path):
                 "Failed to delete contents of output directory %s", output_path)
             return False
 
-    logging.info("Copying mkdocs site to output directory %s", output_path)
+    logging.info("Copying to output directory %s", output_path)
     result = subprocess.run('cp -r * {}'.format(output_path),
-                            cwd='{}/site'.format(tmpdir), shell=True, stdout=stdoutfile, stderr=subprocess.STDOUT)
+                            cwd=site_directory, shell=True, stdout=stdoutfile, stderr=subprocess.STDOUT)
     if not result.returncode == 0:
         logging.error(
-            "Failed to copy mkdocs site to output directory %s", output_path)
+            "Failed to copy to output directory %s", output_path)
         return False
 
     logging.info("Deleting temporary working directory %s", tmpdir)
@@ -70,6 +75,6 @@ def mkdocs_job(repository, branch, output_path):
     stdoutfile.write('[{}]: Job successful\n'.format(datetime.datetime.now()))
     stdoutfile.close()
 
-    logging.info("Mkdocs build job completed succesfully!")
+    logging.info("Job completed succesfully!")
 
     return True

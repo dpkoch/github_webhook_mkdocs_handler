@@ -1,9 +1,6 @@
 # /usr/bin/env python3
 
-import os
-
 import ipaddress
-import json
 import requests
 import yaml
 
@@ -14,13 +11,15 @@ from flask import Flask, request, abort, Response
 
 import redis
 import rq
-from gwmh.job import mkdocs_job
+
+from gwmh.job import copy_job, mkdocs_job
 
 HTTP_STATUS_OK = 200
 HTTP_STATUS_ACCEPTED = 202
 HTTP_STATUS_NO_CONTENT = 204
 HTTP_STATUS_BAD_REQUEST = 400
 HTTP_STATUS_FORBIDDEN = 403
+HTTP_STATUS_INTERNAL_SERVER_ERROR = 500
 
 
 def parse_config(path):
@@ -35,6 +34,9 @@ def parse_config(path):
 
     if not 'verify_github_ip' in config.keys():
         config['verify_github_ip'] = False
+
+    if not 'build_type' in config.keys():
+        config['build_type'] = 'mkdocs'
 
     return config
 
@@ -78,8 +80,10 @@ def index():
             abort(Response("Payload was not for a target branch. Aborting.".encode('utf-8'),
                            status=HTTP_STATUS_ACCEPTED, content_type="text/plain"))
 
-        queue_mkdocs_job()
-        return Response('Successfully queued mkdocs build job for {}, {} branch. Exiting.'.format(get_repository(), get_branch()).encode('utf-8'),
+        if not queue_job(config['build_type']):
+            abort(Response("Failed to queue build job of type {}. Aborting".format(config['build_type']).encode('utf-8')),
+                           status=HTTP_STATUS_INTERNAL_SERVER_ERROR, content_type="text/plain")
+        return Response('Successfully queued {} job for {}, {} branch. Exiting.'.format(config['build_type'], get_repository(), get_branch()).encode('utf-8'),
                         status=HTTP_STATUS_OK, content_type="text/plain")
 
 
@@ -135,6 +139,13 @@ def is_target_branch():
                                    for b in config['repositories'][get_repository()]]
 
 
-def queue_mkdocs_job():
-    rq_queue.enqueue(mkdocs_job,
+def queue_job(build_type: str):
+    JOB_MAPPING = {
+        "copy": copy_job,
+        "mkdocs": mkdocs_job
+    }
+
+    if not build_type in JOB_MAPPING:
+        return False
+    rq_queue.enqueue(JOB_MAPPING[build_type],
                      get_repository(), get_branch(), get_output_path())
