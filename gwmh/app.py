@@ -147,5 +147,7 @@ def queue_job(build_type: str):
 
     if not build_type in JOB_MAPPING:
         return False
+
     rq_queue.enqueue(JOB_MAPPING[build_type],
                      get_repository(), get_branch(), get_output_path())
+    return True
